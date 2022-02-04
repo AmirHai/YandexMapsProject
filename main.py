@@ -35,10 +35,10 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_PAGEUP:
-                map_params['z'] += 1 if map_params['z'] != 17 else 0
+                map_params['z'] += 1 if map_params['z'] != 24 else 0
                 update_map()
             if event.key == pygame.K_PAGEDOWN:
-                map_params['z'] -= 1 if map_params['z'] != 1 else 0
+                map_params['z'] -= 1 if map_params['z'] != 0 else 0
                 update_map()
     pygame.display.flip()
 
