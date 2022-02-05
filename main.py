@@ -35,7 +35,7 @@ map_params = {
     'l': 'map',
     'z': int(input('Масштаб: ')),
 }
-koordChanging = map_params['z'] / 5
+koordChanging = 1 * 2 ** (4 - map_params['z'])
 btnPressed = [0] * 4
 geo_params = {
     'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
@@ -70,11 +70,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_PAGEUP:
                 map_params['z'] += 1 if map_params['z'] != 23 else 0
-                koordChanging = koordChanging / 2 if map_params['z'] != 23 else 0
+                koordChanging = 1 * 2 ** (4 - map_params['z'])
                 update_map()
             if event.key == pygame.K_PAGEDOWN:
                 map_params['z'] -= 1 if map_params['z'] != 0 else 0
-                koordChanging = koordChanging * 2 if map_params['z'] != 23 else 0
+                koordChanging = 1 * 2 ** (4 - map_params['z'])
                 update_map()
 
             if event.unicode in symbols and text_focus:
@@ -120,9 +120,18 @@ while running:
                 map_params['pt'] = f'{point},pm2ntm'
                 map_params['z'] = 16
                 update_map()
+
     changes = map_params['ll'].split(',')
     first = float(changes[0]) + koordChanging * (btnPressed[2] - btnPressed[3])
+    if first >= 179:
+        first = 178.999999
+    elif first <= -179:
+        first = -178.999999
     second = float(changes[1]) + koordChanging * (btnPressed[0] - btnPressed[1])
+    if second >= 85:
+        second = 84.999999
+    elif second <= -85:
+        second = -84.999999
     map_params['ll'] = f'{first},{second}'
     geo_params['ll'] = map_params['ll']
     update_map()
