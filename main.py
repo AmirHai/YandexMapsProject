@@ -35,6 +35,8 @@ map_params = {
     'l': 'map',
     'z': int(input('Масштаб: ')),
 }
+koordChanging = map_params['z'] / 5
+btnPressed = [0] * 4
 geo_params = {
     'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
     'geocode': '',
@@ -57,6 +59,10 @@ search_text_x, search_text_y = 520, 495
 update_map()
 text_focus = False
 running = True
+
+FPS = 60
+clock = pygame.time.Clock()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -64,10 +70,13 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_PAGEUP:
                 map_params['z'] += 1 if map_params['z'] != 23 else 0
+                koordChanging = koordChanging / 2 if map_params['z'] != 23 else 0
                 update_map()
             if event.key == pygame.K_PAGEDOWN:
                 map_params['z'] -= 1 if map_params['z'] != 0 else 0
+                koordChanging = koordChanging * 2 if map_params['z'] != 23 else 0
                 update_map()
+
             if event.unicode in symbols and text_focus:
                 text += event.unicode
                 text_r = font.render(start_text + text, True, 'Black')
@@ -76,6 +85,25 @@ while running:
                 text = text[:-1]
                 text_r = font.render(start_text + text, True, 'Black')
                 draw_texts()
+
+            if event.key == pygame.K_UP:
+                btnPressed[0] = 1
+            if event.key == pygame.K_DOWN:
+                btnPressed[1] = 1
+            if event.key == pygame.K_RIGHT:
+                btnPressed[2] = 1
+            if event.key == pygame.K_LEFT:
+                btnPressed[3] = 1
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                btnPressed[0] = 0
+            if event.key == pygame.K_DOWN:
+                btnPressed[1] = 0
+            if event.key == pygame.K_RIGHT:
+                btnPressed[2] = 0
+            if event.key == pygame.K_LEFT:
+                btnPressed[3] = 0
         if event.type == pygame.MOUSEBUTTONDOWN:
             if text_x - 5 <= event.pos[0] <= width - text_x - 5 and text_y - 5 \
                     <= event.pos[1] <= text_y + text_r.get_height():
@@ -92,7 +120,13 @@ while running:
                 map_params['pt'] = f'{point},pm2ntm'
                 map_params['z'] = 16
                 update_map()
-
+    changes = map_params['ll'].split(',')
+    first = float(changes[0]) + koordChanging * (btnPressed[2] - btnPressed[3])
+    second = float(changes[1]) + koordChanging * (btnPressed[0] - btnPressed[1])
+    map_params['ll'] = f'{first},{second}'
+    geo_params['ll'] = map_params['ll']
+    update_map()
+    clock.tick(FPS)
     pygame.display.flip()
 
 pygame.quit()
