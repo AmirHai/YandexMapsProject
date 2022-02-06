@@ -22,6 +22,7 @@ def draw_texts():
     screen.blit(pygame.image.load(map_file), (0, 0))
     screen.blit(text_r, (text_x, text_y))
     screen.blit(search_text_r, (search_text_x, search_text_y))
+    screen.blit(delete_text_r, (delete_text_x, delete_text_y))
     screen.blit(pygame.image.load(map_file), (0, 0))
     pygame.draw.rect(screen, 'Black', (text_x - 5, text_y - 5,
                                        width - text_x - 10, text_r.get_height() + 5), width=1)
@@ -30,10 +31,12 @@ def draw_texts():
 symbols = 'абвгдеёжзийклмнопрстуфхцчшщьъэюяыАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЭЮЯЫ1234567890,.:; '
 map_api_server = 'http://static-maps.yandex.ru/1.x/'
 geo_server = 'http://geocode-maps.yandex.ru/1.x/'
+start_ll = input('Координаты точки(через запятую и без пробела): ')
+start_z = int(input('Масштаб: '))
 map_params = {
-    'll': input('Координаты точки: '),
+    'll': start_ll,
     'l': 'map',
-    'z': int(input('Масштаб: ')),
+    'z': start_z,
 }
 koordChanging = 1 * 2 ** (4 - map_params['z'])
 btnPressed = [0] * 4
@@ -56,6 +59,9 @@ text_x, text_y = 10, 465
 search_text = 'Искать'
 search_text_r = font.render(search_text, True, 'Black')
 search_text_x, search_text_y = 520, 495
+delete_text = 'Сброс поискового результата'
+delete_text_r = font.render(delete_text, True, 'Black')
+delete_text_x, delete_text_y = 5, 495
 update_map()
 text_focus = False
 running = True
@@ -118,8 +124,15 @@ while running:
                 point = ','.join(crds.split())
                 map_params['ll'] = point
                 map_params['pt'] = f'{point},pm2ntm'
-                map_params['z'] = 16
+                map_params['z'] = 15
                 update_map()
+            if delete_text_x <= event.pos[0] <= delete_text_x + delete_text_r.get_width() and \
+                    delete_text_y <= event.pos[1] <= delete_text_y + delete_text_r.get_height():
+                if 'pt' in map_params.keys():
+                    del map_params['pt']
+                    map_params['ll'] = start_ll
+                    map_params['z'] = start_z
+                    update_map()
 
     changes = map_params['ll'].split(',')
     first = float(changes[0]) + koordChanging * (btnPressed[2] - btnPressed[3])
